@@ -6283,8 +6283,8 @@ int ReplicatedPG::start_flush(
     snapc.seq = snapset.seq;
     snapc.snaps = snapset.snaps;
 
-    if (!snapset.clones.empty() && snapset.clones.back() != snapset.seq) {
-      dsnapc.seq = snapset.clones.back();
+    if (snapset.clones.empty() || snapset.clones.back() != snapset.seq) {
+      dsnapc.seq = snapset.clones.empty() ? snapc.seq : snapset.clones.back();
       vector<snapid_t>::iterator p = snapset.snaps.begin();
       while (p != snapset.snaps.end() && *p > dsnapc.seq)
 	++p;
@@ -6353,7 +6353,7 @@ int ReplicatedPG::start_flush(
     if (dsnapc2.seq > 0)
       dsnapc2.seq.val -= 1;
 
-    if (dsnapc2.seq != dsnapc.seq) {
+    if (dsnapc2.seq > dsnapc.seq) {
       dsnapc2.snaps = dsnapc.snaps;
 
       ObjectOperation o2;
